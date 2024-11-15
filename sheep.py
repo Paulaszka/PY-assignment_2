@@ -21,6 +21,3 @@ class Sheep:
 
     def get_position(self):
         return self.__position
-
-
-

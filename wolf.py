@@ -5,13 +5,6 @@ class Wolf:
         self.__position = {"pos_x": 0, "pos_y": 0}
         self.__movement_distance = wolf_movement_distance
 
-    # def calc_distance(self, list_of_sheep):
-    #     distances = []
-    #     for list_of_sheep in list_of_sheep:
-    #         distance = math.sqrt(dx ** 2 + dy ** 2)
-    #         distances.append(distance)
-    #     index_of_sheep = distances.index(min(distances))
-
     def move_towards(self, target_x, target_y):
         dx = target_x - self.__position["pos_x"]
         dy = target_y - self.__position["pos_y"]
@@ -33,9 +26,3 @@ class Wolf:
 
     def get_position(self):
         return self.__position
-
-
-
-
-    def __str__(self):
-        return f"Position: X={self.__position['pos_x']}, Y={self.__position['pos_y']}"
