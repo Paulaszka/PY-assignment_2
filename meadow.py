@@ -1,3 +1,5 @@
+import csv
+
 import sheep
 import wolf
 import json
@@ -5,11 +7,12 @@ import json
 
 class Meadow:
     def __init__(self, num_of_rounds, num_of_sheep, init_position_limit,
-                 sheep_movement_dist_limit, wolf_movement_dist_limit, json_file_path):
+                 sheep_movement_dist_limit, wolf_movement_dist_limit, json_file_path, csv_file_path):
         self.__num_of_rounds = num_of_rounds
         self.__sheep_list = [sheep.Sheep(init_position_limit, sheep_movement_dist_limit) for _ in range(num_of_sheep)]
         self.__wolf = wolf.Wolf(wolf_movement_dist_limit)
         self.__json_file_path = json_file_path
+        self.__csv_file_path = csv_file_path
 
     def __get_nearest_sheep(self):
         wolf_position = self.__wolf.get_position()
@@ -53,6 +56,7 @@ class Meadow:
                 number_of_sheep_alive += 1
 
         self.__to_json(round_number)
+        self.__to_csv(round_number, number_of_sheep_alive)
 
         if number_of_sheep_alive == 0:
             print('All sheep have been eaten')
@@ -94,6 +98,24 @@ class Meadow:
         with open(self.__json_file_path, "w") as json_file:
             json.dump(data, json_file, indent=4)
 
+    def __to_csv(self, round_number, sheep_count):
+        try:
+            existing_data = []
+            try:
+                with open(self.__csv_file_path, "r", newline="") as csv_file:
+                    reader = csv.reader(csv_file)
+                    existing_data = list(reader)
+            except FileNotFoundError:
+                existing_data = [['round_number', 'sheep_alive_count']]
+
+            existing_data.append([round_number, sheep_count])
+
+            with open(self.__csv_file_path, "w", newline="") as csv_file:
+                writer = csv.writer(csv_file)
+                writer.writerows(existing_data)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
     def start(self):
         for i in range(self.__num_of_rounds):
             if self.__next_round(i):
@@ -102,5 +124,5 @@ class Meadow:
 
 if __name__ == '__main__':
     meadow = Meadow(50, 15, 10,
-                    0.5, 1, "pos.json")
+                    0.5, 1, 'pos.json', 'alive.csv')
     meadow.start()
