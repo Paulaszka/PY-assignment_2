@@ -1,9 +1,10 @@
 import random
 
+
 class Sheep:
     def __init__(self, initial_position_limit, sheep_movement_distance):
         self.__position = {"pos_x": random.uniform(-initial_position_limit, initial_position_limit),
-                         "pos_y": random.uniform(-initial_position_limit, initial_position_limit)}
+                           "pos_y": random.uniform(-initial_position_limit, initial_position_limit)}
         self.__movement_distance = sheep_movement_distance
 
     def move(self):
