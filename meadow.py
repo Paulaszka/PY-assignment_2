@@ -1,8 +1,8 @@
 import csv
+import json
 
 import sheep
 import wolf
-import json
 
 
 class Meadow:
