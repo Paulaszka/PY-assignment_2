@@ -100,7 +100,6 @@ class Meadow:
 
     def __to_csv(self, round_number, sheep_count):
         try:
-            existing_data = []
             try:
                 with open(self.__csv_file_path, "r", newline="") as csv_file:
                     reader = csv.reader(csv_file)
