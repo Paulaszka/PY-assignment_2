@@ -1,5 +1,6 @@
 import math
 
+
 class Wolf:
     def __init__(self, wolf_movement_distance):
         self.__position = {"pos_x": 0, "pos_y": 0}
