@@ -1,8 +1,59 @@
+import argparse
 import csv
 import json
+import logging
+import configparser
+import sys
 
 import sheep
 import wolf
+
+
+def setup_logging(log_level):
+    log_levels = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARNING': logging.WARNING,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL,
+    }
+
+    logging.basicConfig(
+        filename='chase.log',
+        level=log_levels.get(log_level, logging.INFO),
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+
+# Argument parsing
+def parse_args():
+    parser = argparse.ArgumentParser(description="Wolf vs Sheep Simulation")
+    parser.add_argument('-c', '--config', type=str, help="Path to the configuration file")
+    parser.add_argument('-l', '--log', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                        help="Set log level for logging")
+    parser.add_argument('-r', '--rounds', type=int, help="Maximum number of rounds")
+    parser.add_argument('-s', '--sheep', type=int, help="Number of sheep")
+    parser.add_argument('-w', '--wait', action='store_true', help="Pause after each round until key press")
+
+    return parser.parse_args()
+
+
+# Load configuration file
+def load_config(config_file):
+    config = configparser.ConfigParser()
+    config.read(config_file)
+
+    init_position_limit = float(config['Sheep'].get('InitPosLimit', 10.0))
+    sheep_move_dist = float(config['Sheep'].get('MoveDist', 0.5))
+    wolf_move_dist = float(config['Wolf'].get('MoveDist', 1.0))
+
+    # Validate values
+    if sheep_move_dist <= 0:
+        raise ValueError("Sheep movement distance must be positive.")
+    if wolf_move_dist <= 0:
+        raise ValueError("Wolf movement distance must be positive.")
+
+    return init_position_limit, sheep_move_dist, wolf_move_dist
 
 
 class Meadow:
@@ -31,11 +82,11 @@ class Meadow:
 
     def __log_wolf_action(self, action, sheep_index):
         pos = self.__wolf.get_position()
-        print(f'Wolf position is x: {round(pos["pos_x"], 3)}, y: {round(pos["pos_y"], 3)}')
-        print(f'Wolf {action} sheep with index {sheep_index}')
+        logging.debug(f'Wolf position is x: {round(pos["pos_x"], 3)}, y: {round(pos["pos_y"], 3)}')
+        logging.debug(f'Wolf {action} sheep with index {sheep_index}')
 
     def __next_round(self, round_number):
-        print(f'Round {round_number + 1}')
+        logging.info(f'Round {round_number + 1}')
         for sheep_instance in self.__sheep_list:
             if not sheep_instance.is_eaten():
                 sheep_instance.move()
@@ -59,10 +110,16 @@ class Meadow:
         self.__to_csv(round_number, number_of_sheep_alive)
 
         if number_of_sheep_alive == 0:
+            logging.info('All sheep have been eaten')
             print('All sheep have been eaten')
             return True
 
+        logging.info(f'Number of sheep alive: {number_of_sheep_alive}')
         print(f'Number of sheep alive: {number_of_sheep_alive}')
+
+        if args.wait:
+            input("Press any key to continue to the next round...")
+
         return False
 
     def __to_json(self, round_number):
@@ -113,7 +170,7 @@ class Meadow:
                 writer = csv.writer(csv_file)
                 writer.writerows(existing_data)
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred while saving CSV data: {e}")
 
     def start(self):
         for i in range(self.__num_of_rounds):
@@ -122,6 +179,33 @@ class Meadow:
 
 
 if __name__ == '__main__':
-    meadow = Meadow(50, 15, 10,
-                    0.5, 1, 'pos.json', 'alive.csv')
+    # Parse command-line arguments
+    args = parse_args()
+
+    # Handle logging
+    if args.log:
+        setup_logging(args.log)
+
+    # Default values
+    num_of_rounds = 50
+    num_of_sheep = 15
+    init_position_limit = 10.0
+    sheep_move_dist = 0.5
+    wolf_move_dist = 1.0
+
+    # Load config if provided
+    if args.config:
+        try:
+            init_position_limit, sheep_move_dist, wolf_move_dist = load_config(args.config)
+        except Exception as e:
+            logging.error(f"Error loading config file: {e}")
+            sys.exit(1)
+
+    if args.rounds:
+        num_of_rounds = args.rounds
+    if args.sheep:
+        num_of_sheep = args.sheep
+
+    meadow = Meadow(num_of_rounds, num_of_sheep, init_position_limit,
+                    sheep_move_dist, wolf_move_dist, 'pos.json', 'alive.csv')
     meadow.start()
