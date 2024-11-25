@@ -31,7 +31,7 @@ class Meadow:
 
     def __log_wolf_action(self, action, sheep_index):
         pos = self.__wolf.get_position()
-        print(f'Wolf position is x: {round(pos["pos_x"], 3)}, y: {round(pos["pos_y"], 3)}')
+        print(f'Wolf position is x: {pos["pos_x"]:.3f}, y: {pos["pos_y"]:.3f}')
         print(f'Wolf {action} sheep with index {sheep_index}')
 
     def __next_round(self, round_number):
@@ -68,21 +68,22 @@ class Meadow:
     def __to_json(self, round_number):
         sheep_json_list = []
         for sheep_instance in self.__sheep_list:
-            sheep_json_list.append({
-                "pos_x": sheep_instance.get_position()["pos_x"],
-                "pos_y": sheep_instance.get_position()["pos_y"]
-            })
+            sheep_json_list.append([
+                sheep_instance.get_position()["pos_x"],
+                sheep_instance.get_position()["pos_y"]
+            ])
 
-        wolf_json = {
-            "pos_x": self.__wolf.get_position()["pos_x"],
-            "pos_y": self.__wolf.get_position()["pos_y"]
-        }
+        wolf_json = [
+            self.__wolf.get_position()["pos_x"],
+            self.__wolf.get_position()["pos_y"]
+        ]
 
         round_data = {
             "round_no": round_number + 1,
             "wolf_pos": wolf_json,
             "sheep_pos": sheep_json_list
         }
+
         if round_number == 0:
             data = []
         else:
@@ -103,7 +104,7 @@ class Meadow:
     def __to_csv(self, round_number, sheep_count):
         try:
             if round_number == 0:
-                existing_data = [['round_number', 'sheep_alive_count']]
+                existing_data = [['round_number', 'alive_sheep_count']]
             else:
                 try:
                     with open(self.__csv_file_path, "r", newline="") as csv_file:
