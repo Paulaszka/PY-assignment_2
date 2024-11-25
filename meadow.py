@@ -83,15 +83,17 @@ class Meadow:
             "wolf_pos": wolf_json,
             "sheep_pos": sheep_json_list
         }
-
-        try:
-            with open(self.__json_file_path, "r") as json_file:
-                try:
-                    data = json.load(json_file)
-                except json.JSONDecodeError:
-                    data = []
-        except FileNotFoundError:
+        if round_number == 0:
             data = []
+        else:
+            try:
+                with open(self.__json_file_path, "r") as json_file:
+                    try:
+                        data = json.load(json_file)
+                    except json.JSONDecodeError:
+                        data = []
+            except FileNotFoundError:
+                data = []
 
         data.append(round_data)
 
@@ -100,14 +102,17 @@ class Meadow:
 
     def __to_csv(self, round_number, sheep_count):
         try:
-            try:
-                with open(self.__csv_file_path, "r", newline="") as csv_file:
-                    reader = csv.reader(csv_file)
-                    existing_data = list(reader)
-            except FileNotFoundError:
+            if round_number == 0:
                 existing_data = [['round_number', 'sheep_alive_count']]
+            else:
+                try:
+                    with open(self.__csv_file_path, "r", newline="") as csv_file:
+                        reader = csv.reader(csv_file)
+                        existing_data = list(reader)
+                except FileNotFoundError:
+                    existing_data = [['round_number', 'sheep_alive_count']]
 
-            existing_data.append([round_number, sheep_count])
+            existing_data.append([round_number + 1, sheep_count])
 
             with open(self.__csv_file_path, "w", newline="") as csv_file:
                 writer = csv.writer(csv_file)
