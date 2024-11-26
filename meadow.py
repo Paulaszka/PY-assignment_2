@@ -128,6 +128,5 @@ class Meadow:
 
 
 if __name__ == '__main__':
-    meadow = Meadow(50, 15, 10,
-                    0.5, 1, 'pos.json', 'alive.csv')
+    meadow = Meadow(50, 15, 10, 0.5, 1, 'pos.json', 'alive.csv')
     meadow.start()

@@ -13,9 +13,9 @@ class Sheep:
         direction = random.choice(directions)
         match direction:
             case "north":
-                self.__position["pos_x"] += self.__movement_distance
+                self.__position["pos_y"] += self.__movement_distance
             case "south":
-                self.__position["pos_x"] -= self.__movement_distance
+                self.__position["pos_y"] -= self.__movement_distance
             case "east":
                 self.__position["pos_x"] += self.__movement_distance
             case "west":
